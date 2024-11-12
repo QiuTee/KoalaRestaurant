@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
-const SignUp = () => {
+const ManagerSignup = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,17 +17,31 @@ const SignUp = () => {
         setShowPassword(!showPassword);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('SignUp Form Submitted:', formData);
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
 
-        navigate('/admin');
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/manager_register', {
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
+            });
+            console.log('Signup successful:', response.data);
+            navigate('/manager-login');
+        } catch (error) {
+            console.error('Signup error:', error);
+            setError(error.response?.data?.error || 'An error occurred');
+        }
     };
 
     return (
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
-            <h2 className="text-2xl font-bold text-center mb-2">Đăng ký</h2>
-            <p className="text-center text-gray-600 mb-6">Tạo tài khoản mới</p>
+            <h2 className="text-2xl font-bold text-center mb-2">Signup</h2>
+            {error && <p className="text-center text-red-500 mb-2">{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label htmlFor="name" className="block text-sm font-medium mb-1">Fullname</label>
@@ -34,7 +50,7 @@ const SignUp = () => {
                         name="name"
                         id="name"
                         required
-                        placeholder="Your name "
+                        placeholder="Your name"
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -71,16 +87,12 @@ const SignUp = () => {
                             onClick={handleTogglePassword}
                             className="absolute inset-y-0 right-2 flex items-center text-gray-500"
                         >
-                            {showPassword ? (
-                                <EyeOffIcon className="h-5 w-5" />
-                            ) : (
-                                <EyeIcon className="h-5 w-5" />
-                            )}
+                            {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                         </button>
                     </div>
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">Comfirm Password</label>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">Confirm Password</label>
                     <input
                         type="password"
                         name="confirmPassword"
@@ -92,24 +104,12 @@ const SignUp = () => {
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="w-full py-2 px-4 bg-black text-white rounded-md hover:bg-gray-800 transition duration-200"
-                >
+                <button type="submit" className="w-full py-2 px-4 bg-black text-white rounded-md hover:bg-gray-800 transition duration-200">
                     Signup
                 </button>
             </form>
-            <p className="mt-4 text-center text-sm text-gray-600">
-                Already have an account?{' '}
-                <button
-                    onClick={() => navigate('/manager-login')}
-                    className="text-blue-500 hover:underline"
-                >
-                    Login
-                </button>
-            </p>
         </div>
     );
 };
 
-export default SignUp;
+export default ManagerSignup;

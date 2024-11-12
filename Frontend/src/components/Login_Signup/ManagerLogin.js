@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
 const ManagerLogin = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,17 +17,22 @@ const ManagerLogin = () => {
         setShowPassword(!showPassword);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('SignIn Form Submitted:', formData);
-
-        navigate('/admin-dashboard');
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/token/', formData);
+            console.log('Login successful:', response.data);
+            navigate('/admin-dashboard');
+        } catch (error) {
+            console.error('Login error:', error);
+            setError(error.response?.data?.error || 'An error occurred');
+        }
     };
 
     return (
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold text-center mb-2">Login</h2>
-            <p className="text-center text-gray-600 mb-6">Login to your account</p>
+            {error && <p className="text-center text-red-500 mb-2">{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
@@ -41,7 +48,7 @@ const ManagerLogin = () => {
                     />
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="password" className="block text-sm font-medium mb-1">Mật khẩu</label>
+                    <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
                     <div className="relative">
                         <input
                             type={showPassword ? 'text' : 'password'}
@@ -58,30 +65,14 @@ const ManagerLogin = () => {
                             onClick={handleTogglePassword}
                             className="absolute inset-y-0 right-2 flex items-center text-gray-500"
                         >
-                            {showPassword ? (
-                                <EyeOffIcon className="h-5 w-5" />
-                            ) : (
-                                <EyeIcon className="h-5 w-5" />
-                            )}
+                            {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                         </button>
                     </div>
                 </div>
-                <button
-                    type="submit"
-                    className="w-full py-2 px-4 bg-black text-white rounded-md hover:bg-gray-800 transition duration-200"
-                >
+                <button type="submit" className="w-full py-2 px-4 bg-black text-white rounded-md hover:bg-gray-800 transition duration-200">
                     Login
                 </button>
             </form>
-            <p className="mt-4 text-center text-sm text-gray-600">
-                Chưa có tài khoản?{' '}
-                <button
-                    onClick={() => navigate('/manager-signup')}
-                    className="text-blue-500 hover:underline"
-                >
-                    Register
-                </button>
-            </p>
         </div>
     );
 };
