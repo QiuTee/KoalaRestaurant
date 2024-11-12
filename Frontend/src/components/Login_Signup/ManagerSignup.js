@@ -12,7 +12,8 @@ const ManagerSignup = () => {
         phoneNumber: '',
         address: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        managerFullName: ''
     });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
@@ -34,12 +35,14 @@ const ManagerSignup = () => {
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/manager_register', {
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                email: formData.email,
-                phoneNumber: formData.phoneNumber,
-                address: formData.address,
                 password: formData.password,
+                email: formData.email,
+                retype_password: formData.confirmPassword,
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+                address: formData.address,
+                phone_number: formData.phoneNumber,
+                manager_fullname: formData.managerFullName
             });
             console.log('Signup successful:', response.data);
             navigate('/manager-login');
@@ -76,6 +79,19 @@ const ManagerSignup = () => {
                         required
                         placeholder="Last name"
                         value={formData.lastName}
+                        onChange={handleChange}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="managerFullName" className="block text-sm font-medium mb-1">Full Name</label>
+                    <input
+                        type="text"
+                        name="managerFullName"
+                        id="managerFullName"
+                        required
+                        placeholder="Your full name"
+                        value={formData.managerFullName}
                         onChange={handleChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
