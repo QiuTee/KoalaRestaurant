@@ -5,7 +5,15 @@ import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
 const ManagerSignup = () => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+        address: '',
+        password: '',
+        confirmPassword: ''
+    });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
 
@@ -26,8 +34,11 @@ const ManagerSignup = () => {
 
         try {
             const response = await axios.post('http://127.0.0.1:8000/manager_register', {
-                name: formData.name,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
                 email: formData.email,
+                phoneNumber: formData.phoneNumber,
+                address: formData.address,
                 password: formData.password,
             });
             console.log('Signup successful:', response.data);
@@ -44,14 +55,27 @@ const ManagerSignup = () => {
             {error && <p className="text-center text-red-500 mb-2">{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label htmlFor="name" className="block text-sm font-medium mb-1">Fullname</label>
+                    <label htmlFor="firstName" className="block text-sm font-medium mb-1">First Name</label>
                     <input
                         type="text"
-                        name="name"
-                        id="name"
+                        name="firstName"
+                        id="firstName"
                         required
-                        placeholder="Your name"
-                        value={formData.name}
+                        placeholder="First name"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="lastName" className="block text-sm font-medium mb-1">Last Name</label>
+                    <input
+                        type="text"
+                        name="lastName"
+                        id="lastName"
+                        required
+                        placeholder="Last name"
+                        value={formData.lastName}
                         onChange={handleChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -65,6 +89,32 @@ const ManagerSignup = () => {
                         required
                         placeholder="name@example.com"
                         value={formData.email}
+                        onChange={handleChange}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="phoneNumber" className="block text-sm font-medium mb-1">Phone Number</label>
+                    <input
+                        type="tel"
+                        name="phoneNumber"
+                        id="phoneNumber"
+                        required
+                        placeholder="Your phone number"
+                        value={formData.phoneNumber}
+                        onChange={handleChange}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="address" className="block text-sm font-medium mb-1">Address</label>
+                    <input
+                        type="text"
+                        name="address"
+                        id="address"
+                        required
+                        placeholder="Your address"
+                        value={formData.address}
                         onChange={handleChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
