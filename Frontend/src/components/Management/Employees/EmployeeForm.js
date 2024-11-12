@@ -37,18 +37,18 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         // Retrieve the access token from localStorage
         const accessToken = localStorage.getItem('access_token');
-    
+
         // Log the access token to the console
         console.log("Access Token:", accessToken);
-    
+
         if (!accessToken) {
             console.error("Access token not found.");
             return;
         }
-    
+
         try {
             // Prepare the data to be sent
             const dataToSend = {
@@ -59,7 +59,7 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                 salary: formData.salary,           // employee salary
                 start_date: formData.startDate,    // employee start date
             };
-    
+
             // Send the request to the backend
             const response = await axios.post(
                 'http://127.0.0.1:8000/api/employees/', // Replace with the actual endpoint
@@ -71,13 +71,13 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                     },
                 }
             );
-    
+
             console.log('Employee added successfully:', response.data);
             handleAddEmployee(response.data); // Call parent handler to update the state
         } catch (error) {
             console.error('Error adding employee:', error);
         }
-    };    
+    };
 
     return (
         <div className="bg-white shadow rounded-lg p-4 mb-4 max-h-[80vh] w-[500px] overflow-y-auto">
