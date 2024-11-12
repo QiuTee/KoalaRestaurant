@@ -50,24 +50,30 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         }
     
         try {
-            // Prepare the data to be sent
-            const dataToSend = {
-                employee_name: formData.name,      // employee name
-                role: formData.role,               // employee role
-                email: formData.email,             // employee email
-                phone: formData.phone,             // employee phone number
-                salary: formData.salary,           // employee salary
-                start_date: formData.startDate,    // employee start date
-            };
+            // Prepare the data to be sent using FormData
+            const formDataToSend = new FormData();
+            
+            // Append image file
+            if (formData.image) {
+                formDataToSend.append('image', formData.image);
+            }
+    
+            // Append other fields
+            formDataToSend.append('employee_name', formData.name);
+            formDataToSend.append('role', formData.role);
+            formDataToSend.append('email', formData.email);
+            formDataToSend.append('phone', formData.phone);
+            formDataToSend.append('salary', formData.salary);
+            formDataToSend.append('start_date', formData.startDate);
     
             // Send the request to the backend
             const response = await axios.post(
-                'http://127.0.0.1:8000/api/employees/', // Replace with the actual endpoint
-                dataToSend,
+                'http://127.0.0.1:8000/management_employee', // Replace with the actual endpoint
+                formDataToSend,
                 {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json', // Sending JSON data
+                        'Content-Type': 'multipart/form-data', // Ensure the content type is multipart/form-data
                     },
                 }
             );
@@ -77,7 +83,8 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         } catch (error) {
             console.error('Error adding employee:', error);
         }
-    };    
+    };
+    
 
     return (
         <div className="bg-white shadow rounded-lg p-4 mb-4 max-h-[80vh] w-[500px] overflow-y-auto">
