@@ -9,7 +9,7 @@ const EmployeeList = ({ employees, handleEditEmployee, handleDeleteEmployee }) =
                 <SearchIcon className="w-5 h-5 text-gray-500 mr-2" />
                 <input
                     type="text"
-                    placeholder="Tìm kiếm..."
+                    placeholder="Search..."
                     className="p-2 bg-gray-100 rounded-md focus:outline-none"
                 />
             </div>

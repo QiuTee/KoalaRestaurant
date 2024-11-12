@@ -29,7 +29,6 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
     const fields = [
         { name: 'name', type: 'text', placeholder: 'Employee Name' },
         { name: 'role', type: 'text', placeholder: 'Role' },
-        { name: 'dob', type: 'date' },
         { name: 'phone', type: 'text', placeholder: 'Phone Number' },
         { name: 'email', type: 'email', placeholder: 'Email' },
         { name: 'salary', type: 'number', placeholder: 'Salary' },
@@ -51,20 +50,24 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         }
     
         try {
-            // Prepare the data to be sent, including the image file
-            const formDataToSend = new FormData();
-            for (let key in formData) {
-                formDataToSend.append(key, formData[key]);
-            }
+            // Prepare the data to be sent
+            const dataToSend = {
+                employee_name: formData.name,      // employee name
+                role: formData.role,               // employee role
+                email: formData.email,             // employee email
+                phone: formData.phone,             // employee phone number
+                salary: formData.salary,           // employee salary
+                start_date: formData.startDate,    // employee start date
+            };
     
             // Send the request to the backend
             const response = await axios.post(
-                'http://127.0.0.1:8000/management_employee', // Replace with the actual endpoint
-                formDataToSend,
+                'http://127.0.0.1:8000/api/employees/', // Replace with the actual endpoint
+                dataToSend,
                 {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'multipart/form-data', // Needed for sending files
+                        'Content-Type': 'application/json', // Sending JSON data
                     },
                 }
             );
