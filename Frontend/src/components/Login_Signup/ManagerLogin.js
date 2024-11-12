@@ -9,23 +9,35 @@ const ManagerLogin = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
 
+    // Handle form input changes
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Toggle password visibility
     const handleTogglePassword = () => {
         setShowPassword(!showPassword);
     };
 
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Send login request to the backend
             const response = await axios.post('http://127.0.0.1:8000/api/token/', formData);
-            console.log('Login successful:', response.data);
+
+            // Log the response data to the console
+            console.log('Backend response:', response.data);
+
+            // Store access and refresh tokens in localStorage
+            localStorage.setItem('access_token', response.data.access);
+            localStorage.setItem('refresh_token', response.data.refresh); // optional, for token refresh
+
+            // Redirect to the admin dashboard
             navigate('/admin-dashboard');
         } catch (error) {
             console.error('Login error:', error);
-            setError(error.response?.data?.error || 'An error occurred');
+            setError(error.response?.data?.detail || 'An error occurred. Please try again.');
         }
     };
 
