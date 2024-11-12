@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, handleCancel }) => {
     const [previewImage, setPreviewImage] = useState(null);
 
-    // Handle input field changes
+    useEffect(() => {
+        if (isEditing && formData.image) {
+            setPreviewImage(formData.image);
+        }
+    }, [isEditing, formData]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -13,7 +18,6 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         });
     };
 
-    // Handle image upload
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -25,7 +29,6 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         }
     };
 
-    // Fields configuration
     const fields = [
         { name: 'name', type: 'text', placeholder: 'Employee Name' },
         { name: 'role', type: 'text', placeholder: 'Role' },
@@ -38,11 +41,7 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
     const handleSubmit = async (e) => {
         e.preventDefault();
     
-        // Retrieve the access token from localStorage
         const accessToken = localStorage.getItem('access_token');
-    
-        // Log the access token to the console
-        console.log("Access Token:", accessToken);
     
         if (!accessToken) {
             console.error("Access token not found.");
@@ -50,41 +49,34 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         }
     
         try {
-            // Prepare the data to be sent using FormData
             const formDataToSend = new FormData();
-            
-            // Append image file
             if (formData.image) {
                 formDataToSend.append('image', formData.image);
             }
     
-            // Append other fields
             formDataToSend.append('employee_name', formData.name);
             formDataToSend.append('role', formData.role);
             formDataToSend.append('email', formData.email);
             formDataToSend.append('phone', formData.phone);
             formDataToSend.append('salary', formData.salary);
             formDataToSend.append('start_date', formData.startDate);
-    
-            // Send the request to the backend
+
             const response = await axios.post(
-                'http://127.0.0.1:8000/management_employee', // Replace with the actual endpoint
+                'http://127.0.0.1:8000/management_employee/',
                 formDataToSend,
                 {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'multipart/form-data', // Ensure the content type is multipart/form-data
+                        'Content-Type': 'multipart/form-data',
                     },
                 }
             );
-    
-            console.log('Employee added successfully:', response.data);
-            handleAddEmployee(response.data); // Call parent handler to update the state
+
+            handleAddEmployee(response.data);
         } catch (error) {
             console.error('Error adding employee:', error);
         }
     };
-    
 
     return (
         <div className="bg-white shadow rounded-lg p-4 mb-4 max-h-[80vh] w-[500px] overflow-y-auto">
@@ -92,7 +84,6 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                 {isEditing ? 'Edit Employee' : 'Add New Employee'}
             </h2>
 
-            {/* Render input fields dynamically */}
             {fields.map((field) => (
                 <input
                     key={field.name}
@@ -105,7 +96,6 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                 />
             ))}
 
-            {/* Image upload input */}
             <input
                 type="file"
                 name="image"

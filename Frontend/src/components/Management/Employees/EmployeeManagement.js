@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import EmployeeForm from './EmployeeForm';
 import EmployeeList from './EmployeeList';
-import EmployeeData from '../../../data/EmployeeData';
 
 const EmployeeManagement = () => {
-    const [employees, setEmployees] = useState(EmployeeData);
-    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [employees, setEmployees] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         role: '',
@@ -16,54 +15,75 @@ const EmployeeManagement = () => {
         startDate: ''
     });
     const [editingId, setEditingId] = useState(null);
+    const [isFormVisible, setIsFormVisible] = useState(false);
 
-    // Add or Update Employee based on editingId
-    const handleAddOrUpdateEmployee = () => {
-        if (editingId !== null) {
-            // Update existing employee
-            setEmployees(
-                employees.map((emp) =>
-                    emp.id === editingId ? { ...emp, ...formData } : emp
-                )
-            );
-        } else {
-            // Add new employee
-            const newEmployee = { id: employees.length + 1, ...formData };
-            setEmployees([...employees, newEmployee]);
+    // Fetch employee data from backend
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/management_employee/'); // Replace with your API endpoint
+                setEmployees(response.data);
+            } catch (error) {
+                console.error('Error fetching employee data:', error);
+            }
+        };
+        fetchEmployees();
+    }, []);
+
+    // Handle Add/Update Employee
+    const handleAddOrUpdateEmployee = async () => {
+        try {
+            if (editingId !== null) {
+                // Update the employee
+                await axios.put(`http://127.0.0.1:8000/management_employee/${editingId}`, formData);
+                setEmployees(employees.map(emp => emp.id === editingId ? { ...emp, ...formData } : emp));
+            } else {
+                // Add a new employee
+                const response = await axios.post('http://127.0.0.1:8000/management_employee/', formData);
+                setEmployees([...employees, response.data]);
+            }
+        } catch (error) {
+            console.error('Error adding/updating employee:', error);
         }
 
-        // Reset form data and close form
+        // Reset the form after add/update
         setFormData({ name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: '' });
         setEditingId(null);
         setIsFormVisible(false);
     };
 
-    // Set form to edit mode with selected employee data
+    // Handle Edit - Get employee data by ID
     const handleEditEmployee = (id) => {
-        const employee = employees.find((emp) => emp.id === id);
-        setFormData({ ...employee });
-        setEditingId(id);  // Set editingId to switch to edit mode
-        setIsFormVisible(true);
+        const employee = employees.find(emp => emp.id === id);
+        if (employee) {
+            setFormData({ ...employee });
+            setEditingId(id); // Set the id of the employee being edited
+            setIsFormVisible(true); // Show the form
+        }
     };
 
-    // Delete Employee by id
-    const handleDeleteEmployee = (id) => {
-        setEmployees(employees.filter((emp) => emp.id !== id));
+    // Handle Delete Employee
+    const handleDeleteEmployee = async (id) => {
+        try {
+            await axios.delete(`http://127.0.0.1:8000/management_employee/${id}`); // Send delete request to backend
+            setEmployees(employees.filter(emp => emp.id !== id)); // Remove employee from state
+        } catch (error) {
+            console.error('Error deleting employee:', error);
+        }
     };
+
     const handleCancel = () => {
         setIsFormVisible(false);  // Close the form
         setFormData({ name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: '' }); // Reset form
         setEditingId(null); // Reset edit state
     };
+
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-4">Employee Management</h1>
 
             <button
-                onClick={() => {
-                    setIsFormVisible(!isFormVisible);
-
-                }}
+                onClick={() => setIsFormVisible(!isFormVisible)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4"
             >
                 Add New Employee
