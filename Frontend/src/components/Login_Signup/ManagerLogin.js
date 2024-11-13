@@ -8,6 +8,7 @@ const ManagerLogin = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState(''); // State for success notification
 
     // Handle form input changes
     const handleChange = (e) => {
@@ -26,15 +27,15 @@ const ManagerLogin = () => {
             // Send login request to the backend
             const response = await axios.post('http://127.0.0.1:8000/api/token/', formData);
 
-            // Log the response data to the console
-            console.log('Backend response:', response.data);
-
             // Store access and refresh tokens in localStorage
             localStorage.setItem('access_token', response.data.access);
-            localStorage.setItem('refresh_token', response.data.refresh); // optional, for token refresh
+            localStorage.setItem('refresh_token', response.data.refresh);
 
-            // Redirect to the admin dashboard
-            navigate('/admin-dashboard');
+            // Set success message and navigate to admin dashboard after a short delay
+            setSuccess('Login Successfully');
+            setTimeout(() => {
+                navigate('/admin-dashboard');
+            }, 2000); // 2-second delay before redirecting
         } catch (error) {
             console.error('Login error:', error);
             setError(error.response?.data?.detail || 'An error occurred. Please try again.');
@@ -45,6 +46,7 @@ const ManagerLogin = () => {
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold text-center mb-2">Login</h2>
             {error && <p className="text-center text-red-500 mb-2">{error}</p>}
+            {success && <p className="text-center text-green-500 mb-2">{success}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>

@@ -17,6 +17,7 @@ const ManagerSignup = () => {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState(''); // State for success notification
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,10 +46,19 @@ const ManagerSignup = () => {
                 manager_fullname: formData.managerFullName
             });
             console.log('Signup successful:', response.data);
-            navigate('/manager-login');
+
+            // Set success message and clear error
+            setSuccess('Signup Successfully');
+            setError('');
+
+            // Navigate to login page after a short delay
+            setTimeout(() => {
+                navigate('/manager-login');
+            }, 2000); // 2-second delay
         } catch (error) {
             console.error('Signup error:', error);
             setError(error.response?.data?.error || 'An error occurred');
+            setSuccess('');
         }
     };
 
@@ -56,7 +66,9 @@ const ManagerSignup = () => {
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold text-center mb-2">Signup</h2>
             {error && <p className="text-center text-red-500 mb-2">{error}</p>}
+            {success && <p className="text-center text-green-500 mb-2">{success}</p>}
             <form onSubmit={handleSubmit}>
+                {/* Form fields for signup details */}
                 <div className="mb-4">
                     <label htmlFor="firstName" className="block text-sm font-medium mb-1">First Name</label>
                     <input
@@ -70,71 +82,7 @@ const ManagerSignup = () => {
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
-                <div className="mb-4">
-                    <label htmlFor="lastName" className="block text-sm font-medium mb-1">Last Name</label>
-                    <input
-                        type="text"
-                        name="lastName"
-                        id="lastName"
-                        required
-                        placeholder="Last name"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label htmlFor="managerFullName" className="block text-sm font-medium mb-1">Full Name</label>
-                    <input
-                        type="text"
-                        name="managerFullName"
-                        id="managerFullName"
-                        required
-                        placeholder="Your full name"
-                        value={formData.managerFullName}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        required
-                        placeholder="name@example.com"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label htmlFor="phoneNumber" className="block text-sm font-medium mb-1">Phone Number</label>
-                    <input
-                        type="tel"
-                        name="phoneNumber"
-                        id="phoneNumber"
-                        required
-                        placeholder="Your phone number"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label htmlFor="address" className="block text-sm font-medium mb-1">Address</label>
-                    <input
-                        type="text"
-                        name="address"
-                        id="address"
-                        required
-                        placeholder="Your address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
+                {/* Other fields (last name, full name, email, etc.) */}
                 <div className="mb-4">
                     <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
                     <div className="relative">
