@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser  , PermissionsMixin , Gr
 from restaurant_app.manager import *
 from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
+from cloudinary.models import CloudinaryField
 class BaseUser(AbstractBaseUser , PermissionsMixin):
     username = None
     email = models.CharField(max_length= 50, unique=True )
@@ -58,7 +59,7 @@ class ManagerAccount(BaseUser):
 
 class EmployeeInformation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4 , editable=False)
-    image = models.ImageField(upload_to='employee/')
+    image = CloudinaryField('image')
     employee_name = models.CharField(max_length=255 , null=False)
     role =  models.CharField(max_length=50, null= False)
     email = models.CharField(max_length= 50, unique=True )
@@ -90,7 +91,7 @@ class FeedbackFromCustomer(models.Model):
 
 class MenuItems(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4 , editable=False)
-    image = models.ImageField(upload_to='product/')
+    image = CloudinaryField('image')
     food_name = models.CharField(max_length= 50,null = False)
     category = models.CharField(max_length=255,null = False)
     price = models.DecimalField(max_digits=10, decimal_places=3)
