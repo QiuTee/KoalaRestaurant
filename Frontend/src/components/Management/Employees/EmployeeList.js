@@ -1,7 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Edit, Trash } from 'lucide-react';
 import { SearchIcon } from 'lucide-react';
-const EmployeeList = ({ employees, handleEditEmployee, handleDeleteEmployee }) => {
+import axios from 'axios';
+
+const EmployeeList = ({ handleEditEmployee, handleDeleteEmployee }) => {
+    const [employees, setEmployees] = useState([]);
+    
+    // Fetch employee data from the backend
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const accessToken = localStorage.getItem('access_token');
+                if (!accessToken) {
+                    console.error("Access token not found.");
+                    return;
+                }
+
+                const response = await axios.get('http://127.0.0.1:8000/management_employee/', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+
+                // Assuming the backend returns the employee data in the format you provided
+                setEmployees(response.data); // Set the fetched data to state
+            } catch (error) {
+                console.error('Error fetching employee data:', error);
+            }
+        };
+
+        fetchEmployees();
+    }, []);
+
     return (
         <div className="bg-white shadow rounded-lg p-4">
             <h2 className="text-lg font-semibold">Employee List</h2>
@@ -9,7 +39,7 @@ const EmployeeList = ({ employees, handleEditEmployee, handleDeleteEmployee }) =
                 <SearchIcon className="w-5 h-5 text-gray-500 mr-2" />
                 <input
                     type="text"
-                    placeholder="Tìm kiếm..."
+                    placeholder="Search..."
                     className="p-2 bg-gray-100 rounded-md focus:outline-none"
                 />
             </div>
@@ -32,16 +62,16 @@ const EmployeeList = ({ employees, handleEditEmployee, handleDeleteEmployee }) =
                             <td className="border p-2 flex justify-center items-center">
                                 <img
                                     src={employee.image}
-                                    alt={`${employee.name}`}
+                                    alt={`${employee.employee_name}`}
                                     className="w-16 h-16 object-cover"
                                 />
                             </td>
-                            <td className="border p-2">{employee.name}</td>
+                            <td className="border p-2">{employee.employee_name}</td>
                             <td className="border p-2">{employee.role}</td>
                             <td className="border p-2">{employee.email}</td>
                             <td className="border p-2">{employee.phone}</td>
                             <td className="border p-2">${employee.salary}</td>
-                            <td className="border p-2">{employee.startDate}</td>
+                            <td className="border p-2">{employee.start_date}</td>
                             <td className="border p-2">
                                 <button
                                     onClick={() => handleEditEmployee(employee.id)}
