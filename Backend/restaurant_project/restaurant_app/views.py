@@ -74,6 +74,14 @@ class ManagementEmployeeViewset(viewsets.ModelViewSet):
     queryset = EmployeeInformation.objects.all()
     serializer_class = EmployeeSerializer
     permission_classes = [IsManagerUser]
+    
+    
+    def create(self, request, *args, **kwargs):
+        data = request.data 
+        serializers = self.serializer_class(data = data)
+        serializers.is_valid(raise_exception=True)
+        serializers.save()
+        return Responses.response_api("Add Employee Successfull","200")
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         data = request.data
@@ -113,6 +121,8 @@ class ManagementProduct(viewsets.ModelViewSet):
     queryset = MenuItems.objects.all()
     serializer_class = MenuItemSerializer
     permission_classes=[IsManagerUser]
+    
+
     
     def update(self, request, *args, **kwargs):
         data = request.data
