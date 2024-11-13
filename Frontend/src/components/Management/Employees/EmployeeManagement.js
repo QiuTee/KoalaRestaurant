@@ -1,81 +1,79 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useAuth } from '../../../contexts/AuthContext';
 import EmployeeForm from './EmployeeForm';
 import EmployeeList from './EmployeeList';
+import submission from '../../../utils/submission';
 
 const EmployeeManagement = () => {
+    const { tokens } = useAuth();
     const [employees, setEmployees] = useState([]);
     const [formData, setFormData] = useState({
-        name: '',
-        role: '',
-        dob: '',
-        phone: '',
-        email: '',
-        salary: '',
-        startDate: ''
+        name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: ''
     });
     const [editingId, setEditingId] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
 
-    // Fetch employee data from backend
     useEffect(() => {
         const fetchEmployees = async () => {
+            if (!tokens?.access) return;
             try {
-                const response = await axios.get('http://127.0.0.1:8000/management_employee/');
-                setEmployees(response.data);
+                const data = await submission('management_employee/', 'get', null, {
+                    'Authorization': `Bearer ${tokens.access}`
+                });
+                setEmployees(data);
             } catch (error) {
                 console.error('Error fetching employee data:', error);
             }
         };
         fetchEmployees();
-    }, []);
+    }, [tokens]);
 
-    // Handle Add/Update Employee
     const handleAddOrUpdateEmployee = async () => {
         try {
             if (editingId !== null) {
-                // Update the employee
-                await axios.put(`http://127.0.0.1:8000/management_employee/${editingId}`, formData);
+                await submission(`management_employee/${editingId}`, 'put', formData, {
+                    'Authorization': `Bearer ${tokens.access}`
+                });
                 setEmployees(employees.map(emp => emp.id === editingId ? { ...emp, ...formData } : emp));
             } else {
-                // Add a new employee
-                const response = await axios.post('http://127.0.0.1:8000/management_employee/', formData);
-                setEmployees([...employees, response.data]);
+                const data = await submission('management_employee/', 'post', formData, {
+                    'Authorization': `Bearer ${tokens.access}`
+                });
+                setEmployees([...employees, data]);
             }
         } catch (error) {
             console.error('Error adding/updating employee:', error);
         }
 
-        // Reset the form after add/update
         setFormData({ name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: '' });
         setEditingId(null);
         setIsFormVisible(false);
     };
 
-    // Handle Edit - Get employee data by ID
     const handleEditEmployee = (id) => {
         const employee = employees.find(emp => emp.id === id);
         if (employee) {
             setFormData({ ...employee });
-            setEditingId(id); // Set the id of the employee being edited
-            setIsFormVisible(true); // Show the form
+            setEditingId(id);
+            setIsFormVisible(true);
         }
     };
 
-    // Handle Delete Employee
     const handleDeleteEmployee = async (id) => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/management_employee/${id}`); // Send delete request to backend
-            setEmployees(employees.filter(emp => emp.id !== id)); // Remove employee from state
+            await submission(`management_employee/${id}`, 'delete', null, {
+                'Authorization': `Bearer ${tokens.access}`
+            });
+            setEmployees(employees.filter(emp => emp.id !== id));
         } catch (error) {
             console.error('Error deleting employee:', error);
         }
     };
 
     const handleCancel = () => {
-        setIsFormVisible(false);  // Close the form
-        setFormData({ name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: '' }); // Reset form
-        setEditingId(null); // Reset edit state
+        setIsFormVisible(false);
+        setFormData({ name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: '' });
+        setEditingId(null);
     };
 
     return (
@@ -89,7 +87,6 @@ const EmployeeManagement = () => {
                 Add New Employee
             </button>
 
-            {/* Employee Form Dialog */}
             {isFormVisible && (
                 <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white shadow-lg rounded-lg p-6 w-[550px]">

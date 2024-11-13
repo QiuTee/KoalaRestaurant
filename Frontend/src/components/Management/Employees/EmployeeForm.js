@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+import { useAuth } from '../../../contexts/AuthContext';
+import submission from '../../../utils/submission';
 
 const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, handleCancel }) => {
-    const [previewImage, setPreviewImage] = useState(null);
+    const { tokens } = useAuth();
 
-    useEffect(() => {
-        if (isEditing && formData.image) {
-            setPreviewImage(formData.image);
-        }
-    }, [isEditing, formData]);
+    const [previewImage, setPreviewImage] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -29,20 +26,10 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         }
     };
 
-    const fields = [
-        { name: 'name', type: 'text', placeholder: 'Employee Name' },
-        { name: 'role', type: 'text', placeholder: 'Role' },
-        { name: 'phone', type: 'text', placeholder: 'Phone Number' },
-        { name: 'email', type: 'email', placeholder: 'Email' },
-        { name: 'salary', type: 'number', placeholder: 'Salary' },
-        { name: 'startDate', type: 'date' },
-    ];
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const accessToken = localStorage.getItem('access_token');
-
+        const accessToken = tokens?.access;
         if (!accessToken) {
             console.error("Access token not found.");
             return;
@@ -51,32 +38,42 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         try {
             const formDataToSend = new FormData();
             if (formData.image) {
-                formDataToSend.append('image', formData.image);
+                formDataToSend.append('image', formData.image.name);
             }
-
             formDataToSend.append('employee_name', formData.name);
             formDataToSend.append('role', formData.role);
             formDataToSend.append('email', formData.email);
             formDataToSend.append('phone', formData.phone);
             formDataToSend.append('salary', formData.salary);
             formDataToSend.append('start_date', formData.startDate);
+            for (const [key, value] of formDataToSend.entries()) {
+                console.log(`${key}:`, value);
+            }
 
-            const response = await axios.post(
-                'http://127.0.0.1:8000/management_employee/',
+            const response = await submission(
+                'management_employee/',
+                'post',
                 formDataToSend,
                 {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'multipart/form-data',
-                    },
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'multipart/form-data',
                 }
             );
 
-            handleAddEmployee(response.data);
+            handleAddEmployee(response);
         } catch (error) {
             console.error('Error adding employee:', error);
         }
     };
+
+    const fields = [
+        { name: 'name', type: 'text', placeholder: 'Employee Name' },
+        { name: 'role', type: 'text', placeholder: 'Role' },
+        { name: 'email', type: 'email', placeholder: 'Email' },
+        { name: 'phone', type: 'tel', placeholder: 'Phone Number' },
+        { name: 'salary', type: 'number', placeholder: 'Salary' },
+        { name: 'startDate', type: 'date', placeholder: 'Start Date' },
+    ];
 
     return (
         <div className="bg-white shadow rounded-lg p-4 mb-4 max-h-[80vh] w-[500px] overflow-y-auto">

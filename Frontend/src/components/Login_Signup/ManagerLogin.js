@@ -1,39 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import submission from '../../utils/submission';
 
 const ManagerLogin = () => {
     const navigate = useNavigate();
+    const { login } = useAuth();  // Đổi từ setTokens thành login
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
 
-    // Handle form input changes
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Toggle password visibility
     const handleTogglePassword = () => {
         setShowPassword(!showPassword);
     };
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Send login request to the backend
-            const response = await axios.post('http://127.0.0.1:8000/api/token/', formData);
+            const response = await submission('api/token/', 'post', formData);
+            console.log('Backend response:', response);
 
-            // Log the response data to the console
-            console.log('Backend response:', response.data);
-
-            // Store access and refresh tokens in localStorage
-            localStorage.setItem('access_token', response.data.access);
-            localStorage.setItem('refresh_token', response.data.refresh); // optional, for token refresh
-
-            // Redirect to the admin dashboard
+            login({ access: response.access, refresh: response.refresh });  // Sử dụng login thay vì setTokens
             navigate('/admin-dashboard');
         } catch (error) {
             console.error('Login error:', error);

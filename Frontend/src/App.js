@@ -17,47 +17,44 @@ import ProductManagement from "./components/Management/Products/ProductManagemen
 import ManagerLogin from "./components/Login_Signup/ManagerLogin";
 import ManagerSignup from "./components/Login_Signup/ManagerSignup";
 import Settings from "./components/Management/Setting/Setting";
+import { AuthProvider } from "./contexts/AuthContext";
+
 function App() {
   const [theme, setTheme] = useState("light");
 
   return (
     <CartProvider>
       <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/manager-login" element={<ManagerLogin />} />
-          <Route path="/manager-signup" element={<ManagerSignup />} />
-          <Route element={<ManagementLayout />}>
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/employee-management" element={<EmployeeManagement />} />
-            <Route path="/product-management" element={<ProductManagement />} />
-            <Route path="/settings" element={<Settings />} />
-            {/* Add more routes here */}
-          </Route>
+        <AuthProvider>
+          <div
+            className={`${theme === "light" ? "bg-white text-black" : "bg-slate-900 text-white"} transition-colors min-h-screen`}
+          >
+            <Navbar theme={theme} setTheme={setTheme} />
+            <Routes>
+              {/* Routes for the pages */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/manager-login" element={<ManagerLogin />} />
+              <Route path="/manager-signup" element={<ManagerSignup />} />
 
-          <Route
-            path="/*"
-            element={
-              <div
-                className={`${theme === "light"
-                  ? "bg-white text-black"
-                  : "bg-slate-900 text-white"
-                  } transition-colors min-h-screen`}
-              >
-                <Navbar theme={theme} setTheme={setTheme} />
-                <Routes>
-                  <Route path="/order" element={<Order />} />
-                  <Route path="/booking" element={<Booking />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/" element={<Home />} />
-                  <Route path="/menu" element={<Menu />} />
-                  <Route path="/product/:id" element={<ProductDetail />} /> { }
-                </Routes>
-              </div>
-            }
-          />
-        </Routes>
+              {/* Management section wrapped with Layout */}
+              <Route element={<ManagementLayout />}>
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/employee-management" element={<EmployeeManagement />} />
+                <Route path="/product-management" element={<ProductManagement />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
+
+              {/* General pages */}
+              <Route path="/order" element={<Order />} />
+              <Route path="/booking" element={<Booking />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/menu" element={<Menu />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+            </Routes>
+          </div>
+        </AuthProvider>
       </Router>
     </CartProvider>
   );
