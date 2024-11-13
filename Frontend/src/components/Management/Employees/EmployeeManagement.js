@@ -8,8 +8,9 @@ const EmployeeManagement = () => {
     const { tokens } = useAuth();
     const [employees, setEmployees] = useState([]);
     const [formData, setFormData] = useState({
-        name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: ''
+        name: '', role: '', phone: '', email: '', salary: '', start_date: ''
     });
+
     const [editingId, setEditingId] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
 
@@ -28,24 +29,16 @@ const EmployeeManagement = () => {
         fetchEmployees();
     }, [tokens]);
 
-    const handleAddOrUpdateEmployee = async () => {
-        try {
-            if (editingId !== null) {
-                await submission(`management_employee/${editingId}`, 'put', formData, {
-                    'Authorization': `Bearer ${tokens.access}`
-                });
-                setEmployees(employees.map(emp => emp.id === editingId ? { ...emp, ...formData } : emp));
-            } else {
-                const data = await submission('management_employee/', 'post', formData, {
-                    'Authorization': `Bearer ${tokens.access}`
-                });
-                setEmployees([...employees, data]);
-            }
-        } catch (error) {
-            console.error('Error adding/updating employee:', error);
+    const handleAddOrUpdateEmployee = (newEmployee) => {
+        if (editingId !== null) {
+            // Update existing employee
+            setEmployees(employees.map(emp => emp.id === editingId ? { ...emp, ...formData } : emp));
+        } else {
+            // Add new employee to the list
+            setEmployees([...employees, newEmployee]);
         }
 
-        setFormData({ name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: '' });
+        setFormData({ name: '', role: '', phone: '', email: '', salary: '', start_date: '' });
         setEditingId(null);
         setIsFormVisible(false);
     };
@@ -61,7 +54,7 @@ const EmployeeManagement = () => {
 
     const handleDeleteEmployee = async (id) => {
         try {
-            await submission(`management_employee/${id}`, 'delete', null, {
+            await submission(`management_employee/${id}/`, 'delete', null, {
                 'Authorization': `Bearer ${tokens.access}`
             });
             setEmployees(employees.filter(emp => emp.id !== id));
@@ -72,7 +65,7 @@ const EmployeeManagement = () => {
 
     const handleCancel = () => {
         setIsFormVisible(false);
-        setFormData({ name: '', role: '', dob: '', phone: '', email: '', salary: '', startDate: '' });
+        setFormData({ name: '', role: '', phone: '', email: '', salary: '', start_date: '' });
         setEditingId(null);
     };
 

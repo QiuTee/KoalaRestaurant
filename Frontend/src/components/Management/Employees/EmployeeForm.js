@@ -4,7 +4,6 @@ import submission from '../../../utils/submission';
 
 const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, handleCancel }) => {
     const { tokens } = useAuth();
-
     const [previewImage, setPreviewImage] = useState(null);
 
     const handleChange = (e) => {
@@ -20,7 +19,7 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
         if (file) {
             setFormData({
                 ...formData,
-                image: file,
+                imageFile: file,
             });
             setPreviewImage(URL.createObjectURL(file));
         }
@@ -37,18 +36,13 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
 
         try {
             const formDataToSend = new FormData();
-            if (formData.image) {
-                formDataToSend.append('image', formData.image.name);
-            }
+            formDataToSend.append('image', formData.imageFile);
             formDataToSend.append('employee_name', formData.name);
             formDataToSend.append('role', formData.role);
             formDataToSend.append('email', formData.email);
             formDataToSend.append('phone', formData.phone);
             formDataToSend.append('salary', formData.salary);
             formDataToSend.append('start_date', formData.startDate);
-            for (const [key, value] of formDataToSend.entries()) {
-                console.log(`${key}:`, value);
-            }
 
             const response = await submission(
                 'management_employee/',
@@ -60,7 +54,12 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                 }
             );
 
-            handleAddEmployee(response);
+            if (response && response.status === '200') {
+                console.log("Employee added successfully:", response.data);
+                handleAddEmployee(response.data);
+            } else {
+                console.error('Failed to add employee:', response);
+            }
         } catch (error) {
             console.error('Error adding employee:', error);
         }
