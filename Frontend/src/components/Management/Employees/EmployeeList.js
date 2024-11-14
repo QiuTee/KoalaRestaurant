@@ -7,7 +7,7 @@ import { Edit, Trash, SearchIcon } from 'lucide-react';
 
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/drm1mr9va/";
 
-const EmployeeList = () => {
+const EmployeeList = ({ handleEditEmployee }) => {
     const { tokens } = useAuth();
     const [employees, setEmployees] = useState([]);
     const navigate = useNavigate();
@@ -34,9 +34,7 @@ const EmployeeList = () => {
         loadEmployees();
     }, [loadEmployees]);
 
-    const handleEditEmployee = (employeeId) => {
-        console.log(`Edit employee with ID: ${employeeId}`);
-    };
+
 
     const handleDeleteEmployee = async (employeeId) => {
         try {

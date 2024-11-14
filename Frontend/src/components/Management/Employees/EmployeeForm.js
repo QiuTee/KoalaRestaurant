@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import submission from '../../../utils/submission';
 
 const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, handleCancel }) => {
     const { tokens } = useAuth();
     const [previewImage, setPreviewImage] = useState(null);
+
+    useEffect(() => {
+        if (isEditing && formData.name) {
+            if (formData.imageFile) {
+                setPreviewImage(URL.createObjectURL(formData.imageFile));
+            } else if (formData.image) {
+                setPreviewImage(formData.image);
+            }
+        }
+    }, [isEditing, formData]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -36,26 +46,33 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
 
         try {
             const formDataToSend = new FormData();
-            formDataToSend.append('image', formData.imageFile);
-            formDataToSend.append('employee_name', formData.name);
+
+            if (formData.imageFile) {
+                formDataToSend.append('image', formData.imageFile);
+            } else if (formData.image) {
+                formDataToSend.append('image', formData.image);
+            }
+
+
+            formDataToSend.append('employee_name', formData.employee_name);
+
             formDataToSend.append('role', formData.role);
             formDataToSend.append('email', formData.email);
             formDataToSend.append('phone', formData.phone);
             formDataToSend.append('salary', formData.salary);
-            formDataToSend.append('start_date', formData.startDate);
+            formDataToSend.append('start_date', formData.start_date);
+            for (let [key, value] of formDataToSend.entries()) {
+                console.log(`${key}:`, value);
+            }
+            const method = isEditing ? 'put' : 'post';
+            const url = isEditing ? `management_employee/${formData.id}/` : 'management_employee/';
 
-            const response = await submission(
-                'management_employee/',
-                'post',
-                formDataToSend,
-                {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'multipart/form-data',
-                }
-            );
+            const response = await submission(url, method, formDataToSend, {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data',
+            });
 
             if (response && response.status === '200') {
-                console.log("Employee added successfully:", response.data);
                 handleAddEmployee(response.data);
             } else {
                 console.error('Failed to add employee:', response);
@@ -66,12 +83,12 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
     };
 
     const fields = [
-        { name: 'name', type: 'text', placeholder: 'Employee Name' },
+        { name: 'employee_name', type: 'text', placeholder: 'Name' },
         { name: 'role', type: 'text', placeholder: 'Role' },
         { name: 'email', type: 'email', placeholder: 'Email' },
         { name: 'phone', type: 'tel', placeholder: 'Phone Number' },
         { name: 'salary', type: 'number', placeholder: 'Salary' },
-        { name: 'startDate', type: 'date', placeholder: 'Start Date' },
+        { name: 'start_date', type: 'date', placeholder: 'Start Date' },
     ];
 
     return (
@@ -85,10 +102,15 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                     key={field.name}
                     type={field.type}
                     name={field.name}
-                    value={formData[field.name] || ''}
-                    onChange={handleChange}
+                    value={
+                        field.name === 'employee_name' && isEditing
+                            ? formData.name
+                            : formData[field.name] || ''
+                    }
+                    onChange={field.name === 'employee_name' && isEditing ? null : handleChange}
                     placeholder={field.placeholder || ''}
                     className="border p-2 rounded mb-4 w-full"
+                    readOnly={field.name === 'employee_name' && isEditing}
                 />
             ))}
 

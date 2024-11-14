@@ -31,10 +31,8 @@ const EmployeeManagement = () => {
 
     const handleAddOrUpdateEmployee = (newEmployee) => {
         if (editingId !== null) {
-            // Update existing employee
             setEmployees(employees.map(emp => emp.id === editingId ? { ...emp, ...formData } : emp));
         } else {
-            // Add new employee to the list
             setEmployees([...employees, newEmployee]);
         }
 
@@ -44,24 +42,22 @@ const EmployeeManagement = () => {
     };
 
     const handleEditEmployee = (id) => {
-        const employee = employees.find(emp => emp.id === id);
-        if (employee) {
-            setFormData({ ...employee });
-            setEditingId(id);
-            setIsFormVisible(true);
-        }
+        const employee = employees.find((emp) => emp.id === id);
+        setFormData({ ...employee });
+        setEditingId(id);
+        setIsFormVisible(true);
     };
-
-    const handleDeleteEmployee = async (id) => {
-        try {
-            await submission(`management_employee/${id}/`, 'delete', null, {
-                'Authorization': `Bearer ${tokens.access}`
-            });
-            setEmployees(employees.filter(emp => emp.id !== id));
-        } catch (error) {
-            console.error('Error deleting employee:', error);
-        }
-    };
+    const
+        handleDeleteEmployee = async (id) => {
+            try {
+                await submission(`management_employee/${id}/`, 'delete', null, {
+                    'Authorization': `Bearer ${tokens.access}`
+                });
+                setEmployees(employees.filter(emp => emp.id !== id));
+            } catch (error) {
+                console.error('Error deleting employee:', error);
+            }
+        };
 
     const handleCancel = () => {
         setIsFormVisible(false);
