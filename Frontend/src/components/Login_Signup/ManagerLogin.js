@@ -10,6 +10,7 @@ const ManagerLogin = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState(''); // State for success notification
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,6 +38,7 @@ const ManagerLogin = () => {
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold text-center mb-2">Login</h2>
             {error && <p className="text-center text-red-500 mb-2">{error}</p>}
+            {success && <p className="text-center text-green-500 mb-2">{success}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
